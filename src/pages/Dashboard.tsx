@@ -25,6 +25,7 @@ import { FAB } from "@/components/FAB";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { tokenizeInvoice } from "@/lib/stellar-issuance";
+import { repayPool } from "@/lib/soroban";
 
 export default function Dashboard() {
   const { userRole, user } = useAuth();
@@ -82,6 +83,37 @@ export default function Dashboard() {
     } catch (error) {
       toast.error("Tokenization failed", { id: toastId });
       console.error(error);
+    }
+  };
+
+  const handleRepay = async (invoice: Invoice) => {
+    if (!isConnected || !publicKey) {
+      toast.error("Please connect your Stellar wallet first");
+      return;
+    }
+
+    const toastId = toast.loading("Processing repayment via Soroban...");
+    try {
+      const result = await repayPool(publicKey, invoice.amount_inr);
+      
+      if (result?.success) {
+        setInvoices(prev => prev.map(inv => 
+          inv.id === invoice.id ? { ...inv, status: "repaid" } : inv
+        ));
+
+        await supabase
+          .from('invoices')
+          .update({ status: 'repaid' })
+          .eq('id', invoice.id);
+
+        toast.success("Repayment successful!", { 
+          id: toastId,
+          description: `Funds released. Tx: ${result.hash.substring(0,8)}...` 
+        });
+      }
+    } catch (error) {
+      console.error(error);
+      toast.error("Repayment failed", { id: toastId });
     }
   };
 
@@ -228,6 +260,14 @@ export default function Dashboard() {
                           onClick={() => handleTokenize(inv)}
                         >
                           Tokenize
+                        </Button>
+                      ) : inv.status === "funded" ? (
+                        <Button 
+                          size="sm" 
+                          className="h-8 text-xs bg-amber-500 hover:bg-amber-600 text-white border-0"
+                          onClick={() => handleRepay(inv)}
+                        >
+                          Repay
                         </Button>
                       ) : inv.stellar_tx_hash ? (
                         <Button 
