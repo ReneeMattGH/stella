@@ -16,12 +16,15 @@ import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
 
+import { RiskBanner } from "@/components/RiskBanner";
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
       <Toaster />
       <Sonner />
       <BrowserRouter>
+        <RiskBanner />
         <AuthProvider>
           <WalletProvider>
             <Routes>

@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Layers, TrendingUp, CheckCircle2, Rocket, Shield, AlertTriangle } from "lucide-react";
+import { Layers, TrendingUp, CheckCircle2, Rocket, Shield, AlertTriangle, Search } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "@/hooks/useAuth";
 import { useWallet } from "@/hooks/useWallet";
@@ -16,7 +16,16 @@ import { deployLendingPool, investInPool, getPoolYield, CURRENT_POOL_CONTRACT_ID
 export default function BrowsePools() {
   const { userRole } = useAuth();
   const { isConnected, publicKey } = useWallet();
-  const pools = mockInvoices.filter((i) => i.status === "tokenized" || i.status === "funded");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [riskFilter, setRiskFilter] = useState<string>("all");
+
+  const allPools = mockInvoices.filter((i) => i.status === "tokenized" || i.status === "funded");
+  const pools = allPools.filter(pool => {
+    const matchesSearch = pool.buyer_name.toLowerCase().includes(searchQuery.toLowerCase()) || 
+                          pool.id.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesRisk = riskFilter === "all" || pool.risk_score === riskFilter;
+    return matchesSearch && matchesRisk;
+  });
   
   const [poolYields, setPoolYields] = useState<Record<string, number>>({});
 
@@ -93,12 +102,34 @@ export default function BrowsePools() {
 
   return (
     <div className="space-y-6 max-w-7xl animate-slide-up">
-      <div className="flex justify-between items-end">
+      <div className="flex flex-col md:flex-row justify-between items-end gap-4">
         <div>
           <h1 className="font-display text-3xl font-bold gradient-text w-fit">Lending Pools</h1>
           <p className="text-sm text-muted-foreground mt-1">
             Browse tokenized invoices and invest via Stellar smart contracts.
           </p>
+        </div>
+        <div className="flex gap-2 w-full md:w-auto">
+          <div className="relative w-full md:w-64">
+            <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+            <Input 
+              placeholder="Search pools..." 
+              className="pl-8" 
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+          </div>
+          <Select value={riskFilter} onValueChange={setRiskFilter}>
+            <SelectTrigger className="w-[140px]">
+              <SelectValue placeholder="Risk Level" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Risks</SelectItem>
+              <SelectItem value="low">Low Risk</SelectItem>
+              <SelectItem value="medium">Medium Risk</SelectItem>
+              <SelectItem value="high">High Risk</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
       </div>
 

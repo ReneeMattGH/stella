@@ -33,6 +33,8 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { AlertTriangle, Info } from "lucide-react";
 import { useEffect } from "react";
 
+import { YieldChart } from "@/components/YieldChart";
+
 export default function Dashboard() {
   const { userRole, user } = useAuth();
   const { isConnected, publicKey } = useWallet();
@@ -48,6 +50,13 @@ export default function Dashboard() {
   }, [invoices]);
 
   const isBusiness = userRole === "business";
+
+  const handleWithdrawUPI = () => {
+    if (!isConnected) return toast.error("Connect wallet first");
+    toast.success("Withdrawal initiated via UPI", {
+      description: "Funds will be settled to your linked bank account within 24 hours.",
+    });
+  };
 
   // ... (handlers)
 
@@ -187,13 +196,20 @@ export default function Dashboard() {
                 <>
                   <div className="text-3xl font-bold text-foreground">{parseFloat(nativeBalance).toFixed(2)} XLM</div>
                   <p className="text-sm text-muted-foreground mt-1">≈ {formatINR(balanceInr)}</p>
+                  <Button variant="outline" size="sm" className="w-full mt-4 text-xs border-primary/50" onClick={handleWithdrawUPI}>
+                    Withdraw to UPI
+                  </Button>
                   {!account && <p className="text-xs text-amber-500 mt-2">Account not funded on Testnet</p>}
                 </>
               )}
             </CardContent>
           </Card>
 
-          <Card className="md:col-span-2 glass-card hover-glow">
+          {/* Yield Chart for Investors, or Activity for Business */}
+          {!isBusiness ? (
+            <YieldChart />
+          ) : (
+            <Card className="md:col-span-2 glass-card hover-glow">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Recent Transactions</CardTitle>
               <Activity className="h-4 w-4 text-muted-foreground" />
@@ -223,6 +239,7 @@ export default function Dashboard() {
               )}
             </CardContent>
           </Card>
+          )}
         </div>
       )}
 

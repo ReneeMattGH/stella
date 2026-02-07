@@ -28,6 +28,23 @@ export default function UploadInvoice() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (!publicKey) {
+      toast.error("Please connect your wallet first");
+      return;
+    }
+
+    if (Number(form.amountInr) <= 0) {
+      toast.error("Amount must be greater than 0");
+      return;
+    }
+
+    const today = new Date().toISOString().split('T')[0];
+    if (form.dueDate < today) {
+      toast.error("Due date cannot be in the past");
+      return;
+    }
+
     setLoading(true);
     try {
       const { score, recommendedRate, reason } = await calculateRealRiskScore(

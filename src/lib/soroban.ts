@@ -103,6 +103,20 @@ export const investInPool = async (
       .setTimeout(30)
       .build();
 
+    // Simulate first
+    try {
+      const simulation = await rpcServer.simulateTransaction(tx);
+      if (!rpc.Api.isSimulationSuccess(simulation)) {
+        console.warn("Simulation failed, check logs", simulation);
+        // We continue for demo purposes if contract missing, but in real app we'd stop
+      } else {
+        console.log("Simulation successful", simulation);
+        // In real app, we might update resource fees here based on simulation
+      }
+    } catch (simError) {
+      console.warn("Simulation error:", simError);
+    }
+
     // Sign with Freighter
     const signedTx = await signTransaction(tx.toXDR(), {
       networkPassphrase: "Test SDF Network ; September 2015"

@@ -1,73 +1,68 @@
-# Welcome to your Lovable project
+# Stellar Cash Flow - Invoice Financing on Soroban
 
-## Project info
+A decentralized invoice financing platform built on Stellar and Soroban. Businesses can tokenize invoices as assets, and investors can fund them via liquidity pools to earn yields.
 
-**URL**: https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID
+## Features
 
-## How can I edit this code?
+- **Invoice Tokenization**: Mint unique assets representing invoices on Stellar Testnet.
+- **Compliance**: Built-in asset controls (Auth Required, Revocable, Clawback) using `stellar-issuance.ts`.
+- **Risk Scoring**: Real-time risk assessment using Horizon account history (payments/trustlines).
+- **Lending Pools**: Soroban smart contracts for pooling funds and earning yields.
+- **Secondary Market**: Trade invoice tokens on the Stellar DEX.
+- **Investor Dashboard**: Track yields, balances, and investments with real-time charts.
+- **India Focus**: INR display and UPI integration hooks.
 
-There are several ways of editing your application.
+## Tech Stack
 
-**Use Lovable**
+- **Frontend**: React, Vite, Tailwind CSS, Shadcn UI
+- **Blockchain**: Stellar SDK, Soroban Client, Freighter Wallet
+- **Backend**: Supabase (Database & Auth)
+- **Charts**: Recharts
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and start prompting.
+## Setup Instructions
 
-Changes made via Lovable will be committed automatically to this repo.
+### Prerequisites
+1. Node.js (v18+)
+2. [Freighter Wallet Extension](https://www.freighter.app/)
+3. Supabase Project
 
-**Use your preferred IDE**
+### Installation
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+1. Clone the repository:
+   ```bash
+   git clone <repo-url>
+   cd stellar-cash-flow
+   ```
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
 
-Follow these steps:
+3. Environment Variables:
+   Create a `.env` file in the root directory:
+   ```env
+   VITE_SUPABASE_URL=your_supabase_url
+   VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
+   ```
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+4. Run the development server:
+   ```bash
+   npm run dev
+   ```
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+### Blockchain Setup (Testnet)
 
-# Step 3: Install the necessary dependencies.
-npm i
+1. **Fund Wallet**: Open Freighter, switch to "Testnet", and fund your account using the built-in Friendbot or [Stellar Laboratory](https://laboratory.stellar.org/#account-creator?network=test).
+2. **Soroban**: The app uses a simulated contract ID (`CURRENT_POOL_CONTRACT_ID`) in `src/lib/soroban.ts`. For full functionality, deploy the Rust contract to Testnet and update this ID.
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
-```
+## Deployment
 
-**Edit a file directly in GitHub**
+### Vercel
+1. Push to GitHub.
+2. Import project to Vercel.
+3. Add Environment Variables (`VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`).
+4. Deploy!
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
-
-**Use GitHub Codespaces**
-
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
-
-## What technologies are used for this project?
-
-This project is built with:
-
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
-
-## How can I deploy this project?
-
-Simply open [Lovable](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and click on Share -> Publish.
-
-## Can I connect a custom domain to my Lovable project?
-
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+## Disclaimer
+**TESTNET ONLY**. This application is for demonstration purposes on the Stellar Testnet. Do not use real funds.
