@@ -12,6 +12,8 @@ import { Invoice } from "@/types/app-types";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { YieldChart } from "@/components/YieldChart";
+import { InvestmentHeatmap } from "@/components/InvestmentHeatmap";
+import { SectorDistribution } from "@/components/SectorDistribution";
 import { withdraw, CURRENT_POOL_CONTRACT_ID } from "@/lib/soroban";
 
 export function InvestorDashboard() {
@@ -29,16 +31,24 @@ export function InvestorDashboard() {
 
   // Generate projection data for chart
   const generateChartData = () => {
+    // If we have investments, use their real APY to project
+    // Otherwise fallback to simulated
+    const baseApy = weightedApy > 0 ? weightedApy : 12.5;
+    
     const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun"];
-    let currentBalance = totalInvested;
-    const monthlyRate = weightedApy / 100 / 12;
+    let currentBalance = totalInvested > 0 ? totalInvested : 10000; // Show hypothetical 10k if empty
+    const monthlyRate = baseApy / 100 / 12;
     
     return months.map(month => {
-      const interest = currentBalance * monthlyRate;
+      // Add some realistic fluctuation based on "market conditions"
+      const fluctuation = (Math.random() * 0.4) - 0.2; 
+      const effectiveRate = monthlyRate + (fluctuation / 100);
+      const interest = currentBalance * effectiveRate;
       currentBalance += interest;
+      
       return {
         month,
-        yield: Number((weightedApy + (Math.random() * 0.5 - 0.25)).toFixed(2)), // Slight fluctuation simulation
+        yield: Number((baseApy + fluctuation).toFixed(2)),
         balance: Math.round(currentBalance)
       };
     });
@@ -150,25 +160,36 @@ export function InvestorDashboard() {
             />
           </div>
 
-          <div className="grid gap-4 md:grid-cols-2">
-            <Card>
-              <CardHeader>
-                <CardTitle>Yield Performance</CardTitle>
-                <CardDescription>Real-time APY tracking from Soroban contracts</CardDescription>
-              </CardHeader>
-              <CardContent className="h-[300px]">
-                <YieldChart data={chartData} />
-              </CardContent>
-            </Card>
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
+            <div className="lg:col-span-4 space-y-4">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Yield Performance</CardTitle>
+                  <CardDescription>
+                    {totalInvested > 0 
+                      ? `Projected growth based on your ${weightedApy.toFixed(2)}% APY portfolio` 
+                      : "Hypothetical projection for a $10k investment"}
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="h-[300px]">
+                  <YieldChart data={chartData} />
+                </CardContent>
+              </Card>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                 <InvestmentHeatmap />
+                 <SectorDistribution />
+              </div>
+            </div>
 
-            <Card>
+            <Card className="lg:col-span-3 h-full">
               <CardHeader>
                 <CardTitle>Recent Activity</CardTitle>
                 <CardDescription>Your latest transactions</CardDescription>
               </CardHeader>
               <CardContent>
                  <div className="space-y-4">
-                   {investments.slice(0, 5).map((inv) => (
+                   {investments.slice(0, 8).map((inv) => (
                      <div key={inv.id} className="flex items-center justify-between border-b pb-2 last:border-0">
                        <div>
                          <p className="font-medium text-sm">Investment in {inv.invoices?.invoice_number || "Pool"}</p>
@@ -181,7 +202,10 @@ export function InvestorDashboard() {
                      </div>
                    ))}
                    {investments.length === 0 && (
-                     <p className="text-center text-muted-foreground py-4">No recent activity</p>
+                     <div className="flex flex-col items-center justify-center py-8 text-center text-muted-foreground">
+                       <p>No recent activity</p>
+                       <p className="text-xs mt-1">Invest in pools to see transactions here</p>
+                     </div>
                    )}
                  </div>
               </CardContent>

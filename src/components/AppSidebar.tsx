@@ -82,16 +82,20 @@ export function AppSidebar() {
       </SidebarContent>
 
       <SidebarFooter className="p-4 border-t border-sidebar-border">
-        <p className="text-xs text-muted-foreground truncate mb-2">{user?.email}</p>
-        <Button
-          variant="ghost"
-          size="sm"
-          className="w-full justify-start text-muted-foreground hover:text-destructive"
-          onClick={signOut}
-        >
-          <LogOut className="h-4 w-4 mr-2" />
-          Sign Out
-        </Button>
+         <div className="rounded-lg bg-sidebar-accent/50 p-4">
+            <div className="flex items-center gap-3">
+               <div className="h-8 w-8 rounded-full bg-primary/20 flex items-center justify-center">
+                  <Wallet className="h-4 w-4 text-primary" />
+               </div>
+               <div>
+                  <p className="text-xs font-medium">Stellar Network</p>
+                  <p className="text-[10px] text-green-500 flex items-center gap-1">
+                     <span className="h-1.5 w-1.5 rounded-full bg-green-500 animate-pulse" />
+                     Connected
+                  </p>
+               </div>
+            </div>
+         </div>
       </SidebarFooter>
     </Sidebar>
   );
